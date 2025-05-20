@@ -16,4 +16,4 @@ spec:
         - name: spring-api
           image: martin-api
           ports:
-            - containerPort: 8070
+            - containerPort: 8075
