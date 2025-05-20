@@ -34,18 +34,24 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Extract short SHA
+      id: vars
+      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
     - name: Build and push Docker image to GHCR
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./docker/Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+        tags: |
+          ghcr.io/${{ github.repository }}:${{ steps.vars.outputs.sha_short }}
+          ghcr.io/${{ github.repository }}:latest
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref_name }}
-        name: Release ${{ github.ref_name }}
+        tag_name: ${{ steps.vars.outputs.sha_short }}
+        name: Release ${{ steps.vars.outputs.sha_short }}
         body: |
-          Imagen Docker publicada: `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`
+          Imagen Docker publicada: `ghcr.io/${{ github.repository }}:${{ steps.vars.outputs.sha_short }}`
